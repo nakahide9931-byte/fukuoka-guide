@@ -1,26 +1,161 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ===== Base reset ===== */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
 body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, "Hiragino Kaku Gothic ProN", "Yu Gothic", Arial, sans-serif;
+  line-height: 1.6;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ===== Theme variables (standard CSS) ===== */
+:root{
+  --background: #ffffff;
+  --foreground: #111111;
+  --muted: #6b7280;
+  --brand: #276ef1;        /* primary */
+  --brand-weak: #d6e9ff;   /* light accent */
+  --card: #f3f4f6;
+  --border: #e5e7eb;
+}
+
+/* ===== Layout helpers ===== */
+.wrap { width: min(980px, 92vw); margin: 0 auto; padding: 16px; }
+
+/* ===== Buttons (used across pages) ===== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 44px; padding: 0 20px;
+  font-weight: 700; text-decoration: none;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 999px;
+  backdrop-filter: blur(4px);
+  transition: transform .15s ease, opacity .2s ease, background .2s ease, border-color .2s ease;
+}
+.btn:hover { transform: translateY(-1px); }
+.btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+.btn.ghost   { background: transparent; color: #111; }
+
+/* 小さいボタン（既存のコンポーネント用） */
+.btn.small { height: 36px; padding: 0 12px; font-weight: 600; }
+
+/* ===== Hero ===== */
+.hero {
+  position: relative; min-height: 56vh;
+  background: #0b1220 url('/hero.jpg') center/cover no-repeat;
+  border-radius: 12px; overflow: hidden;
+}
+.hero::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.55));
+}
+.hero-inner {
+  position: absolute; inset: 0; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; text-align: center; gap: 12px;
+  padding: 24px; color: #fff;
+}
+.hero h1 { margin: 0 0 6px; font-size: clamp(28px, 5vw, 56px); }
+.hero p  { margin: 0; font-size: clamp(14px, 2.2vw, 18px); }
+.hero .actions { margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+
+/* ===== Spot detail misc（既存ページで参照しているクラス） ===== */
+.meta { display: flex; gap: 12px; list-style: none; padding: 0; margin: 12px 0 16px; color: var(--muted); }
+.desc { line-height: 1.8; }
+img { max-width: 100%; height: auto; display: block; border-radius: 12px; }
+/* ===== HERO（クリックブロック対策版） ===== */
+
+/* ページ幅のコンテナ（必要なら） */
+.wrap {
+  max-width: 1080px;
+  margin: 28px auto;
+  padding: 0 16px;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  min-height: 360px;
+}
+
+.hero img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0; /* いちばん下：画像 */
+}
+
+/* うすい黒のオーバーレイ（クリックは通す） */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+  z-index: 1;           /* 画像の上 */
+  pointer-events: none; /* ← これが超重要：クリックをブロックしない */
+}
+
+.hero-inner {
+  position: relative;
+  z-index: 2;           /* オーバーレイより前面 */
+  padding: 48px 28px 52px;
+  text-align: center;
+  color: #fff;
+}
+
+.hero-inner h1 {
+  margin: 0 0 12px;
+  font-size: clamp(28px, 4.5vw, 44px);
+  font-weight: 800;
+  letter-spacing: .4px;
+}
+
+.hero-inner p {
+  margin: 0 0 20px;
+  opacity: .96;
+}
+
+.actions {
+  display: inline-flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+/* ボタン（既存の.btnがあっても併用OK。無い場合はこれが効きます） */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  border: 1px solid rgba(255,255,255,.2);
+  transition: transform .15s ease, opacity .15s ease;
+}
+
+.btn.primary {
+  background: #276ef1; /* 既存のブランド色に合わせてもOK */
+  color: #fff;
+  border-color: #276ef1;
+}
+
+.btn.ghost {
+  background: transparent;
+  color: #fff;
+  border-color: rgba(255,255,255,.45);
+  backdrop-filter: blur(4px);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  opacity: .95;
 }
