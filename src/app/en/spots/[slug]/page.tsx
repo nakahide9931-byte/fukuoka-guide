@@ -1,21 +1,24 @@
 import SafeImage from "../../../../components/SafeImage";
+import { notFound } from "next/navigation";
 import { spots } from "../data";
-
-type Params = { params: { slug: string } };
 
 export async function generateStaticParams() {
   return (spots as any[]).map((s: any) => ({ slug: s.slug }));
 }
 
-export default function EnSpotDetail({ params: { slug } }: Params) {
+export default async function EnSpotDetail(
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params;                        // ← await
   const spot = (spots as any[]).find((s: any) => s.slug === slug);
-  if (!spot) return <main><h1>Not found</h1></main>;
+  if (!spot) notFound();
 
   const title =
     (spot?.name?.en as string) ??
     (spot?.name as string) ??
     (spot?.title as string) ??
-    spot.slug;
+    slug;
+
   const summary =
     (spot?.summary?.en as string) ?? (spot?.summary as string) ?? "";
 

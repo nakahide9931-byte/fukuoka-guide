@@ -4,9 +4,13 @@ import { spots } from "../data";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function EnSpotTwitterImage({ params: { slug } }: { params: { slug: string } }) {
+export default async function EnSpotTwitterImage(
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params;                        // ← await
   const spot = (spots as any[]).find((s: any) => s.slug === slug);
   const title = spot?.name?.en ?? spot?.slug ?? "Fukuoka";
+
   return new ImageResponse(
     (
       <div style={{

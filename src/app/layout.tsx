@@ -1,54 +1,26 @@
 // src/app/layout.tsx
-import type { Metadata } from 'next';
-import Script from 'next/script';
-import './globals.css';
-
-import HeaderNav from '@/components/HeaderNav';
-import JsonLdBase from '@/components/JsonLdBase';
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: 'Find Your Fukuoka',
-  description: 'Discover hidden gems, food, culture, and nature in Fukuoka.',
-  alternates: {
-    languages: {
-      en: '/en',
-      ja: '/ja',
-      'x-default': '/',
-    },
+  // サイトの絶対URL（Vercel の環境変数を使用）
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://fukuoka-guide.vercel.app"),
+  // （任意）全体のデフォルトOG
+  openGraph: {
+    type: "website",
+    title: "Fukuoka Guide",
+    url: "/",
+    images: ["/og.jpg"]
   },
+  twitter: { card: "summary_large_image" },
+  // ルートにも hreflang を付けておく（下の ja/en レイアウトでも重ねがけ可）
+  alternates: { languages: { ja: "/ja", en: "/en" } }
 };
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // ルートでは lang は固定でOK（詳細は下の注釈）
   return (
-    <html lang="en">
-      <body>
-        <HeaderNav />       {/* 全ページにヘッダー */}
-        <JsonLdBase />      {/* ← サイト全体 JSON‑LD（WebSite/Organization） */}
-        {children}
-
-        {GA_ID && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-              strategy="afterInteractive"
-            />
-            <Script id="ga-init" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${GA_ID}', {
-                  anonymize_ip: true,
-                  debug_mode: true,
-                  transport_type: 'beacon'
-                });
-              `}
-            </Script>
-          </>
-        )}
-      </body>
+    <html lang="ja">
+      <body>{children}</body>
     </html>
   );
 }

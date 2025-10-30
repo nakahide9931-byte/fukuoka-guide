@@ -4,9 +4,13 @@ import { spots } from "../data";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default function JaSpotOgImage({ params: { slug } }: { params: { slug: string } }) {
+export default async function JaSpotOgImage(
+  { params }: { params: Promise<{ slug: string }> }
+) {
+  const { slug } = await params;                        // ← await
   const spot = (spots as any[]).find((s: any) => s.slug === slug);
   const title = spot?.name?.ja ?? spot?.slug ?? "Fukuoka";
+
   return new ImageResponse(
     (
       <div style={{
