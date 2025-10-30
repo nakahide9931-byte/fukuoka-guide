@@ -6,9 +6,7 @@ const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.a
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
-
-  // ja/en 両方の slug を集約（重複排除）
-  const slugs = Array.from(new Set([...jaSpots, ...enSpots].map((s) => s.slug)));
+  const slugs = Array.from(new Set([...jaSpots, ...enSpots].map((s: any) => s.slug)));
 
   const base: MetadataRoute.Sitemap = [
     { url: `${site}/`, lastModified: now },

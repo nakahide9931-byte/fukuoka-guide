@@ -1,5 +1,10 @@
-// src/app/en/spots/data.ts
-export const spots = [
-  // ← ここに今入っている英語側の配列をそのまま残す
+export type SpotEn = {
+  slug: string;
+  image?: string;
+  name?: { ja?: string; en?: string } | string;
+  summary?: { ja?: string; en?: string } | string;
+};
+
+export const spots: SpotEn[] = [
+  // ← ここにあなたの EN データを並べる（空でもOK）
 ];
-// `export default spots` があれば削除
