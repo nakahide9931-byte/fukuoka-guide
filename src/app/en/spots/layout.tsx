@@ -1,7 +1,7 @@
 // src/app/en/spots/layout.tsx
 import type { ReactNode } from 'react';
-import SpotListJsonLd from '@/components/SpotListJsonLd';
-import spots, { type Spot } from './data';
+import SpotListJsonld from '@components/SpotListJsonld';
+import { spots, type Spot } from './data';
 
 export default function SpotsLayout({ children }: { children: ReactNode }) {
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
@@ -15,8 +15,7 @@ export default function SpotsLayout({ children }: { children: ReactNode }) {
 
   return (
     <>
-      {/* 一覧ページ用の ItemList 構造化データ */}
-      <SpotListJsonLd items={items} />
+      <SpotListJsonld items={items} />
       {children}
     </>
   );

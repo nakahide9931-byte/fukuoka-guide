@@ -1,31 +1,27 @@
-// src/app/sitemap.ts
-import type { MetadataRoute } from 'next';
-import jaSpots from '@/app/ja/spots/data';
-import enSpots from '@/app/en/spots/data';
+import type { MetadataRoute } from "next";
+import { spots as jaSpots } from "./ja/spots/data";
+import { spots as enSpots } from "./en/spots/data";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-const now = new Date();
+const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  // ① 固定ページ（/favorites は含めない）
-  const statics: MetadataRoute.Sitemap = [
-    `${BASE}/ja`,
-    `${BASE}/en`,
-    `${BASE}/ja/spots`,
-    `${BASE}/en/spots`,
-  ].map((url) => ({ url, lastModified: now }));
+  const now = new Date();
 
-  // ② スポット詳細（英日）
-  const spotPages: MetadataRoute.Sitemap = [
-    ...jaSpots.map((s) => ({
-      url: `${BASE}/ja/spots/${s.slug}`,
-      lastModified: now,
-    })),
-    ...enSpots.map((s) => ({
-      url: `${BASE}/en/spots/${s.slug}`,
-      lastModified: now,
-    })),
+  // ja/en 両方の slug を集約（重複排除）
+  const slugs = Array.from(new Set([...jaSpots, ...enSpots].map((s) => s.slug)));
+
+  const base: MetadataRoute.Sitemap = [
+    { url: `${site}/`, lastModified: now },
+    { url: `${site}/ja`, lastModified: now },
+    { url: `${site}/en`, lastModified: now },
+    { url: `${site}/ja/spots`, lastModified: now },
+    { url: `${site}/en/spots`, lastModified: now }
   ];
 
-  return [...statics, ...spotPages];
+  const detail = slugs.flatMap((slug) => [
+    { url: `${site}/ja/spots/${slug}`, lastModified: now },
+    { url: `${site}/en/spots/${slug}`, lastModified: now }
+  ]);
+
+  return [...base, ...detail];
 }

@@ -1,27 +1,16 @@
-'use client';
+import Image, { type ImageProps } from "next/image";
 
-import Image, { ImageProps } from 'next/image';
-import { useState } from 'react';
+type Props = Omit<ImageProps, "src"> & { src: string };
 
-type Props = ImageProps & {
-  /** 画像読み込みに失敗したときの代替画像 */
-  fallbackSrc?: string;
-};
-
-export default function SafeImage({
-  fallbackSrc = '/og-default-ja.png',
-  alt,
-  src,
-  ...rest
-}: Props) {
-  const [currentSrc, setCurrentSrc] = useState(src as string);
-
-  return (
-    <Image
-      {...rest}
-      alt={alt}
-      src={currentSrc}
-      onError={() => setCurrentSrc(fallbackSrc)}
-    />
-  );
+/**
+ * spot.image にファイル名だけ（例: "nakasu-night.jpg"）が来ても
+ * 自動で /images/spots/ を前置して解決する安全ローダー。
+ * すでに `/` や `http` で始まる場合はそのまま使用。
+ */
+export default function SafeImage({ src, alt, ...rest }: Props) {
+  const resolved =
+    src.startsWith("/") || /^https?:\/\//.test(src)
+      ? src
+      : `/images/spots/${src}`;
+  return <Image src={resolved} alt={alt ?? ""} {...rest} />;
 }

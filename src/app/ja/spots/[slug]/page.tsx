@@ -1,50 +1,24 @@
-// src/app/ja/spots/[slug]/page.tsx
-import Link from 'next/link';
-import Image from 'next/image';
-import { spots } from '../data';
+import SafeImage from "../../../../components/SafeImage";
+import { spots } from "../data";
 
-export default function SpotPage({ params }: { params: { slug: string } }) {
-  const spot = (spots as any[]).find((s: any) => (s as any).slug === params.slug) as any;
+type Params = { params: { slug: string } };
 
-  const title = spot?.name ?? spot?.title ?? params.slug;
-  const description = spot?.description ?? '';
-  const image = spot?.image ?? spot?.ogImage ?? spot?.twImage;
+export async function generateStaticParams() {
+  return spots.map((s) => ({ slug: s.slug }));
+}
 
-  if (!spot) {
-    return (
-      <main style={{ padding: 24 }}>
-        <h1>見つかりませんでした</h1>
-        <p>
-          指定されたスポット <code>{params.slug}</code> は存在しません。
-        </p>
-        <p>
-          <Link href="/ja/spots">一覧に戻る</Link>
-        </p>
-      </main>
-    );
-  }
+export default function JaSpotDetail({ params: { slug } }: Params) {
+  const spot = spots.find((s) => s.slug === slug);
+  if (!spot) return <main><h1>見つかりませんでした</h1></main>;
+
+  const title = (spot as any).name?.ja ?? (spot as any).name ?? (spot as any).title ?? spot.slug;
+  const summary = (spot as any).summary?.ja ?? (spot as any).summary ?? "";
 
   return (
-    <main style={{ padding: 24 }}>
+    <main style={{ display: "grid", gap: 16 }}>
       <h1>{title}</h1>
-
-      {image ? (
-        <Image
-          src={image}
-          alt={title}
-          width={1200}
-          height={675}
-          sizes="100vw"
-          style={{ width: '100%', height: 'auto' }}
-          priority
-        />
-      ) : null}
-
-      {description ? <p style={{ marginTop: 16 }}>{description}</p> : null}
-
-      <p style={{ marginTop: 24 }}>
-        <Link href="/ja/spots">一覧に戻る</Link>
-      </p>
+      <SafeImage src={(spot as any).image} alt={title} width={1200} height={800} />
+      {summary && <p style={{ color: "#444" }}>{summary}</p>}
     </main>
   );
 }
