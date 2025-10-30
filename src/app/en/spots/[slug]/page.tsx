@@ -1,33 +1,46 @@
+'use client';
+
+import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import spots, { type Spot } from '../data';
+import { spots } from '../data';
 
-type Params = { slug: string };
+export default function SpotPage({ params }: { params: { slug: string } }) {
+  const spot = useMemo(
+    () => (spots as any[]).find((s) => (s as any).slug === params.slug) as any,
+    [params.slug],
+  );
 
-export function generateStaticParams() {
-  return (spots as Spot[]).map((s) => ({ slug: s.slug }));
-}
+  const title = spot?.name ?? spot?.title ?? params.slug;
+  const description = spot?.description ?? '';
+  const image = spot?.image ?? spot?.ogImage ?? spot?.twImage;
 
-export default async function Page({ params }: { params: Promise<Params> }) {
-  const { slug } = await params;
-  const spot = (spots as Spot[]).find((s) => s.slug === slug);
-  if (!spot) notFound();
-
-  const img = spot.image ? `/images/spots/${spot.image}` : '/hero.jpg';
+  if (!spot) {
+    return (
+      <main style={{ padding: 24 }}>
+        <h1>Not found</h1>
+        <p>
+          Spot <code>{params.slug}</code> was not found.
+        </p>
+        <p>
+          <Link href="/en/spots">Back to list</Link>
+        </p>
+      </main>
+    );
+  }
 
   return (
-    <main className="wrap">
-      <h1 style={{ marginBottom: 8 }}>{spot.name}</h1>
-      <div style={{ marginBottom: 12 }}>
-        <Link href="/en/spots">← Back to list</Link>
-      </div>
-      <img
-        src={img}
-        alt={`${spot.name} photo`}
-        style={{ width: '100%', height: 'auto', borderRadius: 12, display: 'block' }}
-        onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/hero.jpg'; }}
-      />
-      {spot.description && <p style={{ marginTop: 12 }}>{spot.description}</p>}
+    <main style={{ padding: 24 }}>
+      <h1>{title}</h1>
+
+      {image ? (
+        <img src={image} alt={title} style={{ maxWidth: '100%', height: 'auto' }} />
+      ) : null}
+
+      {description ? <p style={{ marginTop: 16 }}>{description}</p> : null}
+
+      <p style={{ marginTop: 24 }}>
+        <Link href="/en/spots">Back to list</Link>
+      </p>
     </main>
   );
 }
