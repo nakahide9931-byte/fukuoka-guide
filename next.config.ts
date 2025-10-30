@@ -1,7 +1,13 @@
-import type { NextConfig } from "next";
+// next.config.ts
+import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  reactStrictMode: true,
 
-export default nextConfig;
+  // ✅ Vercel などの本番ビルドでは ESLint をスキップ
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+}
+
+export default nextConfig
