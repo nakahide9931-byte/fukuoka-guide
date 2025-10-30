@@ -1,38 +1,25 @@
 // src/app/ja/spots/data.ts
-export type Spot = {
+export type JaSpot = {
   slug: string;
   name: string;
-  area: string;
-  time: string;
-  description?: string;
-  image: string; // /public/images/spots/ 以下
+  description: string;
+  image?: string;      // /public からの絶対パス
+  ogImage?: string;
+  twImage?: string;
 };
 
-export const spots: Spot[] = [
-  {
-    slug: 'nakasu-night',
-    name: '中洲の夜景',
-    area: '博多',
-    time: '60分',
-    description: '屋台と川面のリフレクションが美しい夜景スポット。',
-    image: 'nakasu-night.jpg',
-  },
-  {
-    slug: 'itoshima-fields',
-    name: '糸島の景色',
-    area: '糸島',
-    time: '120分',
-    description: '広がる畑と空が気持ちいい撮影スポット。',
-    image: 'itoshima.jpg',
-  },
+export const spots: JaSpot[] = [
   {
     slug: 'dazaifu-tenmangu',
     name: '太宰府天満宮',
-    area: '太宰府',
-    time: '2.5時間',
     description: '歴史的な神社と博物館エリア。',
-    image: 'dazaifu.jpg',
+    image: '/images/spots/dazaifu-tenmangu.jpg',
   },
+  {
+    slug: 'nakasu-night',
+    name: '中洲の夜景',
+    description: '屋台と川面のリフレクションが美しい夜景スポット。',
+    image: '/images/spots/nakasu-night.jpg',
+  },
+  // ここにスポットを追加していってください
 ];
-
-export default spots;

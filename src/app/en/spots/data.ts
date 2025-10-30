@@ -1,38 +1,25 @@
 // src/app/en/spots/data.ts
-export type Spot = {
+export type EnSpot = {
   slug: string;
-  name: string;
-  area: string;
-  time: string;
-  description?: string;
-  image: string; // relative to /public/images/spots/
+  title: string;
+  description: string;
+  image?: string;      // /public からの絶対パス
+  ogImage?: string;
+  twImage?: string;
 };
 
-export const spots: Spot[] = [
-  {
-    slug: 'nakasu-night',
-    name: 'Nakasu Nightscape',
-    area: 'Hakata',
-    time: '60 min',
-    description: 'Vibrant nightlife by the river with beautiful reflections.',
-    image: 'nakasu-night.jpg',
-  },
-  {
-    slug: 'itoshima-fields',
-    name: 'Itoshima Fields & Sea',
-    area: 'Itoshima',
-    time: 'Half day',
-    description: 'Beaches and cafés west of Fukuoka.',
-    image: 'itoshima.jpg',
-  },
+export const spots: EnSpot[] = [
   {
     slug: 'dazaifu-tenmangu',
-    name: 'Dazaifu Tenmangu',
-    area: 'Dazaifu',
-    time: '2.5 hours',
+    title: 'Dazaifu Tenmangu',
     description: 'Historic shrine and museum district.',
-    image: 'dazaifu.jpg',
+    image: '/images/spots/dazaifu-tenmangu.jpg',
   },
+  {
+    slug: 'nakasu-night',
+    title: 'Nakasu Night View',
+    description: 'Beautiful night reflections and yatai food stalls.',
+    image: '/images/spots/nakasu-night.jpg',
+  },
+  // ここにスポットを追加していってください
 ];
-
-export default spots;
