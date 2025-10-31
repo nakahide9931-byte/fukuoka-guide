@@ -1,33 +1,24 @@
+// src/app/sitemap.ts
 import type { MetadataRoute } from "next";
-import { spots as jaSpots } from "./ja/spots/data";
-import { spots as enSpots } from "./en/spots/data";
+// それぞれの data から slug を取る想定です（既存のパスに合わせてください）
+import { spots as spotsJa } from "@/app/ja/spots/data";
+import { spots as spotsEn } from "@/app/en/spots/data";
 
-const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
-
-type WithSlug = { slug: string }; // ← 最低限 slug だけ使う
+const BASE = "https://fukuoka-guide.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
-
-  // ja/en をまとめて slug 重複排除（型差を WithSlug で吸収）
-  const slugs = Array.from(
-    new Set(
-      ([...jaSpots, ...enSpots] as WithSlug[]).map((s) => s.slug)
-    )
-  );
-
-  const base: MetadataRoute.Sitemap = [
-    { url: `${site}/`, lastModified: now },
-    { url: `${site}/ja`, lastModified: now },
-    { url: `${site}/en`, lastModified: now },
-    { url: `${site}/ja/spots`, lastModified: now },
-    { url: `${site}/en/spots`, lastModified: now }
+  const staticPages: MetadataRoute.Sitemap = [
+    { url: `${BASE}/`, lastModified: new Date() },
+    { url: `${BASE}/ja`, lastModified: new Date() },
+    { url: `${BASE}/en`, lastModified: new Date() },
+    { url: `${BASE}/ja/spots`, lastModified: new Date() },
+    { url: `${BASE}/en/spots`, lastModified: new Date() },
   ];
 
-  const detail = slugs.flatMap((slug) => [
-    { url: `${site}/ja/spots/${slug}`, lastModified: now },
-    { url: `${site}/en/spots/${slug}`, lastModified: now }
-  ]);
+  const spotPages: MetadataRoute.Sitemap = [
+    ...spotsJa.map((s) => ({ url: `${BASE}/ja/spots/${s.slug}`, lastModified: new Date() })),
+    ...spotsEn.map((s) => ({ url: `${BASE}/en/spots/${s.slug}`, lastModified: new Date() })),
+  ];
 
-  return [...base, ...detail];
+  return [...staticPages, ...spotPages];
 }
