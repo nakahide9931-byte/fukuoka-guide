@@ -1,55 +1,56 @@
-// src/app/ja/spots/[slug]/page.tsx
-import type { Metadata } from "next";
-import SafeImage from "../../../../components/SafeImage";
-import { spots } from "../data";
+// --- SEO metadata for JA spot detail pages ---
+import type { Metadata, ResolvingMetadata } from "next";
 
-type Params = { params: { slug: string } };
-
-export async function generateStaticParams() {
-  return (spots as any[]).map((s) => ({ slug: (s as any).slug }));
-}
+const SPOT_META_JA: Record<string, { title: string; description: string }> = {
+  "dazaifu-tenmangu": {
+    title: "太宰府天満宮",
+    description: "梅と学問の神様。写真映えスポット多数。",
+  },
+  "nakasu-night": {
+    title: "中洲の夜景",
+    description: "屋台と川沿いの夜景が人気。",
+  },
+  itoshima: {
+    title: "糸島",
+    description: "海カフェと絶景ドライブで話題のエリア。",
+  },
+};
 
 export async function generateMetadata(
-  { params }: { params: { slug: string } }
+  { params }: { params: { slug: string } },
+  _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const { slug } = params;
-  const spot = (spots as any[]).find((s) => (s as any).slug === slug) as any;
 
-  const base = "Fukuoka Guide"; // ここを「福岡ガイド」にしてもOK
-  const title = spot?.name?.ja ?? (spot?.title as string) ?? slug;
-  const description = spot?.summary?.ja ?? (spot?.summary as string) ?? "";
-  const og = spot?.image ? `/images/spots/${spot.image}` : "/hero.jpg";
+  const baseTitle = "Fukuoka Guide（日本語）";
+  const fallbackDescription = "食・文化・自然。九州の玄関口で見つける、あなたの旅。";
+
+  const found = SPOT_META_JA[slug];
+  const title = found ? `${found.title} | ${baseTitle}` : baseTitle;
+  const description = found?.description ?? fallbackDescription;
 
   return {
-    title: `${title} | ${base}`,
+    title,
     description,
-    openGraph: { title, description, url: `/ja/spots/${slug}`, images: [og] },
-    twitter: { card: "summary_large_image", title, description, images: [og] },
     alternates: {
       canonical: `/ja/spots/${slug}`,
-      languages: { ja: `/ja/spots/${slug}`, en: `/en/spots/${slug}` },
+      languages: {
+        ja: `/ja/spots/${slug}`,
+        en: `/en/spots/${slug}`,
+      },
+    },
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      url: `/ja/spots/${slug}`,
+      images: [`/ja/spots/${slug}/opengraph-image`],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [`/ja/spots/${slug}/twitter-image`],
     },
   };
-}
-
-export default function JaSpotDetail({ params }: Params) {
-  const spot = (spots as any[]).find((s) => (s as any).slug === params.slug) as any;
-  if (!spot) return <main><h1>見つかりませんでした</h1></main>;
-
-  const title =
-    spot?.name?.ja ?? (spot?.name as string) ?? (spot?.title as string) ?? params.slug;
-  const summary = spot?.summary?.ja ?? (spot?.summary as string) ?? "";
-
-  return (
-    <main style={{ display: "grid", gap: 16 }}>
-      <h1>{title}</h1>
-      <SafeImage
-        src={`/images/spots/${spot.image}`}
-        alt={title}
-        width={1200}
-        height={800}
-      />
-      {summary && <p style={{ color: "#444" }}>{summary}</p>}
-    </main>
-  );
 }

@@ -1,43 +1,39 @@
 // src/app/en/layout.tsx
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  // 本番ドメイン（これで相対URLが絶対URLに展開される）
-  metadataBase: new URL("https://fukuoka-guide.vercel.app"),
+const SITE_NAME_EN = "Fukuoka Guide (English)";
+const SITE_DESC_EN =
+  "Discover food, culture, and nature in Kyushu’s vibrant heart.";
 
-  // <title>（全ページ共通のテンプレ）
+export const metadata: Metadata = {
   title: {
     default: "Fukuoka Guide",
     template: "%s | Fukuoka Guide",
   },
+  // ← これで <meta name="description" ...> が出ます
+  description: SITE_DESC_EN,
 
-  // <meta name="description">
-  description: "Discover food, culture, and nature in Kyushu's vibrant heart.",
-
-  // Open Graph（Facebook等）
-  openGraph: {
-    type: "website",
-    url: "/en",
-    title: "Fukuoka Guide (English)",
-    description: "Discover food, culture, and nature in Kyushu's vibrant heart.",
-    images: ["/og.jpg"],
-  },
-
-  // Twitterカード
-  twitter: {
-    card: "summary_large_image",
-    title: "Fukuoka Guide",
-    description: "Discover food, culture, and nature in Kyushu's vibrant heart.",
-    images: ["/og.jpg"],
-  },
-
-  // canonical と hreflang
   alternates: {
     canonical: "/en",
     languages: {
       en: "/en",
       ja: "/ja",
     },
+  },
+
+  openGraph: {
+    type: "website",
+    title: SITE_NAME_EN,
+    description: SITE_DESC_EN,
+    url: "/en",
+    images: ["/og.jpg"],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME_EN,
+    description: SITE_DESC_EN,
+    images: ["/og.jpg"],
   },
 };
 
