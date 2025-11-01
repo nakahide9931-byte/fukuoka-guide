@@ -1,14 +1,18 @@
 // src/app/layout.tsx
-
+import type { Metadata } from "next";
 import { Suspense } from "react";
-import type { ReactNode } from "react";   // ← これを追加
-import GA from "@/components/GA";         // すでにあるならこの行は重複しないように
+import GA from "../components/GA";
 
-export default function RootLayout({
-  children,
-}: {
-  children: ReactNode;                    // ← ReactNode を使う
-}) {
+export const metadata: Metadata = {
+  // ここで相対URLを絶対化（canonical / og 画像などに有効）
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app"),
+  // Search Console の検証タグ（全ページに出す）
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
       <body>

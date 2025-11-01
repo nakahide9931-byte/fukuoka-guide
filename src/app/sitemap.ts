@@ -1,24 +1,25 @@
 // src/app/sitemap.ts
 import type { MetadataRoute } from "next";
-// それぞれの data から slug を取る想定です（既存のパスに合わせてください）
-import { spots as spotsJa } from "@/app/ja/spots/data";
-import { spots as spotsEn } from "@/app/en/spots/data";
+import { spots as jaSpots } from "./ja/spots/data";
+import { spots as enSpots } from "./en/spots/data";
 
-const BASE = "https://fukuoka-guide.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const staticPages: MetadataRoute.Sitemap = [
-    { url: `${BASE}/`, lastModified: new Date() },
-    { url: `${BASE}/ja`, lastModified: new Date() },
-    { url: `${BASE}/en`, lastModified: new Date() },
-    { url: `${BASE}/ja/spots`, lastModified: new Date() },
-    { url: `${BASE}/en/spots`, lastModified: new Date() },
+  const now = new Date().toISOString();
+
+  const urls: MetadataRoute.Sitemap = [
+    { url: `${SITE_URL}/`, lastModified: now },
+    { url: `${SITE_URL}/en`, lastModified: now },
+    { url: `${SITE_URL}/ja`, lastModified: now },
   ];
 
-  const spotPages: MetadataRoute.Sitemap = [
-    ...spotsJa.map((s) => ({ url: `${BASE}/ja/spots/${s.slug}`, lastModified: new Date() })),
-    ...spotsEn.map((s) => ({ url: `${BASE}/en/spots/${s.slug}`, lastModified: new Date() })),
-  ];
+  for (const s of jaSpots as any[]) {
+    urls.push({ url: `${SITE_URL}/ja/spots/${s.slug}`, lastModified: now });
+  }
+  for (const s of enSpots as any[]) {
+    urls.push({ url: `${SITE_URL}/en/spots/${s.slug}`, lastModified: now });
+  }
 
-  return [...staticPages, ...spotPages];
+  return urls;
 }

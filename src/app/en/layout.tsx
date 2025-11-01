@@ -1,12 +1,8 @@
-// src/app/en/layout.tsx
 import type { Metadata } from "next";
 import React from "react";
 
 export const metadata: Metadata = {
-  title: {
-    default: "Fukuoka Guide",
-    template: "%s | Fukuoka Guide",
-  },
+  title: { default: "Fukuoka Guide", template: "%s | Fukuoka Guide" },
   description: "Discover food, culture, and nature in Kyushu’s vibrant heart.",
   alternates: {
     canonical: "/en",
@@ -15,15 +11,15 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     title: "Fukuoka Guide (English)",
+    description: "Discover food, culture, and nature in Kyushu’s vibrant heart.",
     url: "/en",
     images: ["/og.jpg"],
   },
   twitter: {
     card: "summary_large_image",
-  },
-  // ★ Search Console 検証コードを meta に出す
-  verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION as string,
+    title: "Fukuoka Guide",
+    description: "Discover food, culture, and nature in Kyushu’s vibrant heart.",
+    images: ["/og.jpg"],
   },
 };
 
