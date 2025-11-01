@@ -7,8 +7,7 @@ export const metadata: Metadata = {
     default: "Fukuoka Guide",
     template: "%s | Fukuoka Guide",
   },
-  description:
-    "Discover food, culture, and nature in Kyushu’s vibrant heart.",
+  description: "Discover food, culture, and nature in Kyushu’s vibrant heart.",
   alternates: {
     canonical: "/en",
     languages: { en: "/en", ja: "/ja" },
@@ -21,6 +20,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
+  },
+  // ★ Search Console 検証コードを meta に出す
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION as string,
   },
 };
 
