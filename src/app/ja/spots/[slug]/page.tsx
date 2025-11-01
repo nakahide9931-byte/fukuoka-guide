@@ -1,86 +1,89 @@
-// src/app/ja/spots/[slug]/page.tsx
+import Image from "next/image";
 import type { Metadata, ResolvingMetadata } from "next";
-import { notFound } from "next/navigation";
-import { spots } from "../data";
 
-// ページ個別のメタ（必要に応じて追加）
-const SPOT_META_JA: Record<string, { title: string; description: string }> = {
+const SPOT_META_JA: Record<
+  string,
+  { title: string; description: string; hero?: string }
+> = {
   "dazaifu-tenmangu": {
     title: "太宰府天満宮",
     description: "梅と学問の神様。写真映えスポット多数。",
+    hero: "/images/spots/dazaifu-tenmangu.jpg",
   },
   "nakasu-night": {
     title: "中洲の夜景",
     description: "屋台と川沿いの夜景が人気。",
+    hero: "/images/spots/nakasu-night.jpg",
   },
   itoshima: {
     title: "糸島",
     description: "海カフェと絶景ドライブで話題のエリア。",
+    hero: "/images/spots/itoshima.jpg",
   },
 };
 
 export async function generateMetadata(
   { params }: { params: { slug: string } },
-  _parent?: ResolvingMetadata
+  _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const baseTitle = "Fukuoka Guide（日本語）";
   const fallbackDescription =
     "食・文化・自然。九州の玄関口で見つける、あなたの旅。";
-
-  const meta = SPOT_META_JA[params.slug];
-  const title = meta ? `${meta.title} | ${baseTitle}` : baseTitle;
-  const description = meta?.description ?? fallbackDescription;
+  const found = SPOT_META_JA[params.slug];
+  const title = found ? `${found.title} | ${baseTitle}` : baseTitle;
+  const description = found?.description ?? fallbackDescription;
+  const slug = params.slug;
 
   return {
     title,
     description,
     alternates: {
-      canonical: `/ja/spots/${params.slug}`,
-      languages: {
-        ja: `/ja/spots/${params.slug}`,
-        en: `/en/spots/${params.slug}`,
-      },
+      canonical: `/ja/spots/${slug}`,
+      languages: { ja: `/ja/spots/${slug}`, en: `/en/spots/${slug}` },
     },
     openGraph: {
       type: "article",
+      url: `/ja/spots/${slug}`,
       title,
       description,
-      url: `/ja/spots/${params.slug}`,
-      images: [`/ja/spots/${params.slug}/opengraph-image`],
+      images: [`/ja/spots/${slug}/opengraph-image`],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [`/ja/spots/${params.slug}/twitter-image`],
+      images: [`/ja/spots/${slug}/twitter-image`],
     },
   };
 }
 
-// ★ default export（ページ本体）— これが無いとビルドに失敗します
-export default function JaSpotPage({ params }: { params: { slug: string } }) {
-  const s = (spots as any[]).find((x) => x.slug === params.slug) ?? null;
-  if (!s) return notFound();
-
-  const title =
-    s?.name?.ja ?? s?.title ?? params.slug.replace(/-/g, " ");
-  const summary = s?.summary?.ja ?? s?.summary ?? "";
-  const image = (s as any)?.image as string | undefined;
+export default function Page({ params }: { params: { slug: string } }) {
+  const m = SPOT_META_JA[params.slug];
+  const title = m?.title ?? params.slug;
+  const hero = m?.hero ?? "/images/spots/hero.jpg";
 
   return (
-    <main>
-      <h1>{title}</h1>
-      {image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={image}
+    <main style={{ padding: 24 }}>
+      <h1 style={{ fontSize: "2.25rem", fontWeight: 700, marginBottom: 16 }}>
+        {title}
+      </h1>
+      <div
+        style={{
+          border: "1px solid #eee",
+          borderRadius: 8,
+          overflow: "hidden",
+          maxWidth: 960,
+        }}
+      >
+        <Image
+          src={hero}
           alt={title}
-          width={800}
-          height={533}
-          style={{ display: "block", borderRadius: 8 }}
+          width={1280}
+          height={720}
+          style={{ width: "100%", height: "auto", display: "block" }}
+          priority
         />
-      ) : null}
-      {summary && <p style={{ marginTop: 12 }}>{summary}</p>}
+      </div>
     </main>
   );
 }
