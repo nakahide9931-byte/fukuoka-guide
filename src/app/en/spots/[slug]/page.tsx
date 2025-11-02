@@ -1,8 +1,8 @@
 // src/app/en/spots/[slug]/page.tsx
 import Image from "next/image";
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import BreadcrumbJsonLd from "@/components/BreadcrumbJsonLd";
 
-// スポットごとのメタ定義（英語）
 const SPOT_META_EN: Record<
   string,
   { title: string; description: string; hero?: string }
@@ -24,15 +24,13 @@ const SPOT_META_EN: Record<
   },
 };
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: { params: { slug: string } },
+  _parent: ResolvingMetadata
+): Promise<Metadata> {
   const baseTitle = "Fukuoka Guide (English)";
   const fallbackDescription =
     "Discover food, culture, and nature in Kyushu's vibrant heart.";
-
   const found = SPOT_META_EN[params.slug];
   const title = found ? `${found.title} | ${baseTitle}` : baseTitle;
   const description = found?.description ?? fallbackDescription;
@@ -43,10 +41,7 @@ export async function generateMetadata({
     description,
     alternates: {
       canonical: `/en/spots/${slug}`,
-      languages: {
-        en: `/en/spots/${slug}`,
-        ja: `/ja/spots/${slug}`,
-      },
+      languages: { en: `/en/spots/${slug}`, ja: `/ja/spots/${slug}` },
     },
     openGraph: {
       type: "article",
@@ -68,9 +63,19 @@ export default function Page({ params }: { params: { slug: string } }) {
   const m = SPOT_META_EN[params.slug];
   const title = m?.title ?? params.slug;
   const hero = m?.hero ?? "/images/spots/hero.jpg";
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
 
   return (
     <main style={{ padding: 24 }}>
+      {/* パンくず JSON-LD */}
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Fukuoka Guide", url: `${base}/en` },
+          { name: "Spots", url: `${base}/en/spots` },
+          { name: title, url: `${base}/en/spots/${params.slug}` },
+        ]}
+      />
+
       <h1
         style={{
           fontSize: "2.25rem",

@@ -1,8 +1,8 @@
 // src/app/ja/spots/[slug]/page.tsx
 import Image from "next/image";
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
+import BreadcrumbJsonLd from "@/components/BreadcrumbJsonLd";
 
-// スポットごとのメタ定義（日本語）
 const SPOT_META_JA: Record<
   string,
   { title: string; description: string; hero?: string }
@@ -24,17 +24,14 @@ const SPOT_META_JA: Record<
   },
 };
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: { params: { slug: string } },
+  _parent: ResolvingMetadata
+): Promise<Metadata> {
   const baseTitle = "Fukuoka Guide（日本語）";
-  const fallbackDescription =
-    "食・文化・自然。九州の玄関口で見つける、あなたの旅。";
-
+  const fallbackDescription = "食・文化・自然。九州の玄関口で見つける、あなたの旅。";
   const found = SPOT_META_JA[params.slug];
-  const title = found ? `${found.title}｜${baseTitle}` : baseTitle;
+  const title = found ? `${found.title} | ${baseTitle}` : baseTitle;
   const description = found?.description ?? fallbackDescription;
   const slug = params.slug;
 
@@ -43,10 +40,7 @@ export async function generateMetadata({
     description,
     alternates: {
       canonical: `/ja/spots/${slug}`,
-      languages: {
-        ja: `/ja/spots/${slug}`,
-        en: `/en/spots/${slug}`,
-      },
+      languages: { ja: `/ja/spots/${slug}`, en: `/en/spots/${slug}` },
     },
     openGraph: {
       type: "article",
@@ -68,9 +62,19 @@ export default function Page({ params }: { params: { slug: string } }) {
   const m = SPOT_META_JA[params.slug];
   const title = m?.title ?? params.slug;
   const hero = m?.hero ?? "/images/spots/hero.jpg";
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
 
   return (
     <main style={{ padding: 24 }}>
+      {/* パンくず JSON-LD */}
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Fukuoka Guide", url: `${base}/ja` },
+          { name: "スポット", url: `${base}/ja/spots` },
+          { name: title, url: `${base}/ja/spots/${params.slug}` },
+        ]}
+      />
+
       <h1
         style={{
           fontSize: "2.25rem",
