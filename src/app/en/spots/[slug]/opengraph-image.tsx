@@ -1,26 +1,55 @@
 import { ImageResponse } from "next/og";
-import { spots } from "../data";
 
+export const runtime = "edge";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default async function EnSpotOgImage(
-  { params }: { params: Promise<{ slug: string }> }
-) {
-  const { slug } = await params;                        // ← await
-  const spot = (spots as any[]).find((s: any) => s.slug === slug);
-  const title = spot?.name?.en ?? spot?.slug ?? "Fukuoka";
+const titleMap: Record<string, string> = {
+  "dazaifu-tenmangu": "Dazaifu Tenmangu Shrine",
+  "nakasu-night": "Nakasu Night",
+  itoshima: "Itoshima",
+};
+
+export default async function OG({ params }: { params: { slug: string } }) {
+  const title = titleMap[params.slug] ?? params.slug;
 
   return new ImageResponse(
     (
-      <div style={{
-        fontSize: 64, width: "100%", height: "100%",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        background: "#fff"
-      }}>
-        <div style={{ maxWidth: 1000, textAlign: "center" }}>{title}</div>
+      <div
+        style={{
+          display: "flex",
+          width: "100%",
+          height: "100%",
+          background: "#0b1220",
+          color: "#fff",
+          padding: 48,
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+        }}
+      >
+        <div style={{ display: "flex", flexDirection: "column", maxWidth: 1000 }}>
+          <div style={{ fontSize: 64, fontWeight: 800, lineHeight: 1.15 }}>
+            {title}
+          </div>
+          <div style={{ fontSize: 28, opacity: 0.9 }}>Fukuoka Guide</div>
+        </div>
+        <div
+          style={{
+            width: 420,
+            height: 236,
+            background: "rgba(255,255,255,0.08)",
+            borderRadius: 12,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 24,
+            opacity: 0.6,
+          }}
+        >
+          spot
+        </div>
       </div>
     ),
-    size
+    { ...size } // ← contentType はここに入れない
   );
 }
