@@ -1,27 +1,54 @@
-// src/components/AffiliateLink.tsx
-'use client';
+"use client";
 
-type Props = {
+import * as React from "react";
+import { trackCta } from "../lib/ga";
+
+type Props = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   href: string;
-  event: 'spot_hotels' | 'spot_tours' | 'cta_hotels' | 'cta_tours';
-  className?: string;
-  children: React.ReactNode;
+  /** GA に送りたい CTA 名。未指定ならテキストから自動抽出 */
+  ctaLabel?: string;
 };
 
-export default function AffiliateLink({ href, event, className, children }: Props) {
-  const onClick = () => {
+/**
+ * 外部アフィリエイト / CTA リンク
+ * - target=_blank / rel=sponsored/nofollow をデフォルト付与
+ * - クリック時に GA4 へ `outbound_click` と `cta_click` を送信
+ */
+export default function AffiliateLink({
+  href,
+  children,
+  ctaLabel,
+  rel,
+  target,
+  onClick,
+  ...rest
+}: Props) {
+  const getText = () => {
+    if (typeof children === "string") return children;
+    if (Array.isArray(children)) {
+      const merged = children.filter(c => typeof c === "string").join(" ").trim();
+      return merged || undefined;
+    }
+    return (rest.title as string) || ctaLabel || undefined;
+  };
+
+  const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (e) => {
     try {
-      (window as any).gtag?.('event', event, { transport_type: 'beacon' });
-    } catch {}
+      const label = ctaLabel || getText() || "cta";
+      trackCta(href, label);
+    } catch {
+      // no-op（計測に失敗してもリンク遷移は継続）
+    }
+    onClick?.(e);
   };
 
   return (
     <a
       href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      onClick={onClick}
-      className={className}
+      target={target ?? "_blank"}
+      rel={rel ?? "nofollow sponsored noopener noreferrer"}
+      onClick={handleClick}
+      {...rest}
     >
       {children}
     </a>
