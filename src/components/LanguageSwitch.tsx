@@ -1,30 +1,47 @@
 // src/components/LanguageSwitch.tsx
 'use client';
 
+import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { gaEvent } from '@/lib/ga';
 
-export default function LanguageSwitch() {
-  const pathname = usePathname() || '/';
+type Props = {
+  /** 切り替え先の言語 */
+  to: 'ja' | 'en';
+  /** 切り替え先のURL（/ja/... または /en/...） */
+  href: string;
+  className?: string;
+  children?: React.ReactNode; // ボタンラベル
+};
 
-  // /ja/xxx <-> /en/xxx を相互に切替
-  const isEN = pathname.startsWith('/en');
-  const isJA = pathname.startsWith('/ja');
-
-  const target = isEN
-    ? pathname.replace(/^\/en/, '/ja')
-    : isJA
-    ? pathname.replace(/^\/ja/, '/en')
-    : '/ja';
-
-  const label = isEN ? '日本語' : 'EN';
+export default function LanguageSwitch({ to, href, className, children }: Props) {
+  const handleClick = React.useCallback(() => {
+    const from =
+      typeof document !== 'undefined' ? document.documentElement.lang || '' : '';
+    gaEvent('language_switch', {
+      from,
+      to,
+      page: typeof location !== 'undefined' ? location.pathname : '',
+      href,
+    });
+  }, [to, href]);
 
   return (
     <Link
-      href={target}
-      style={{ border: '1px solid #ddd', borderRadius: 8, padding: '4px 8px', fontSize: 12 }}
+      href={href}
+      hrefLang={to}
+      className={className}
+      onClick={handleClick}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '6px 10px',
+        borderRadius: 8,
+        border: '1px solid #ddd',
+      }}
     >
-      {label}
+      {children ?? (to === 'ja' ? '日本語' : 'English')}
     </Link>
   );
 }

@@ -1,43 +1,30 @@
-"use client";
+// 例: src/components/AffiliateLink.tsx（抜粋）
+import { gaEvent } from '@/lib/ga';
 
-import * as React from "react";
-import { trackCta } from "../lib/ga";
-
-type Props = Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
-  href: string;
-  /** GA に送りたい CTA 名。未指定ならテキストから自動抽出 */
-  ctaLabel?: string;
-};
-
-/**
- * 外部アフィリエイト / CTA リンク
- * - target=_blank / rel=sponsored/nofollow をデフォルト付与
- * - クリック時に GA4 へ `outbound_click` と `cta_click` を送信
- */
 export default function AffiliateLink({
   href,
   children,
-  ctaLabel,
-  rel,
   target,
+  rel,
   onClick,
   ...rest
-}: Props) {
-  const getText = () => {
-    if (typeof children === "string") return children;
-    if (Array.isArray(children)) {
-      const merged = children.filter(c => typeof c === "string").join(" ").trim();
-      return merged || undefined;
-    }
-    return (rest.title as string) || ctaLabel || undefined;
-  };
-
+}: React.ComponentProps<'a'> & { href: string }) {
   const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (e) => {
     try {
-      const label = ctaLabel || getText() || "cta";
-      trackCta(href, label);
+      const url = new URL(href, window.location.href);
+      const isOutbound = url.host !== window.location.host;
+
+      gaEvent(isOutbound ? 'outbound_click' : 'cta_click', {
+        link_url: url.toString(),
+        link_domain: url.hostname,
+        link_text:
+          typeof children === 'string'
+            ? children
+            : (e.currentTarget.textContent || '').slice(0, 80),
+        language: document.documentElement.lang,
+      });
     } catch {
-      // no-op（計測に失敗してもリンク遷移は継続）
+      // no-op
     }
     onClick?.(e);
   };
@@ -45,8 +32,8 @@ export default function AffiliateLink({
   return (
     <a
       href={href}
-      target={target ?? "_blank"}
-      rel={rel ?? "nofollow sponsored noopener noreferrer"}
+      target={target ?? '_blank'}
+      rel={rel ?? 'nofollow sponsored noopener noreferrer'}
       onClick={handleClick}
       {...rest}
     >
