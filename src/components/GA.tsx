@@ -1,43 +1,67 @@
-'use client';
+// src/components/GA.tsx
+"use client";
 
-import Script from 'next/script';
-import { usePathname, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import Script from "next/script";
+import { useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID || '';
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID || "";
 
 export default function GA() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // ルーターでページ遷移した時に page_view を送る
+  // ページビュー（SPA遷移にも対応）
   useEffect(() => {
-    if (!GA_ID || typeof window === 'undefined') return;
-    const url = pathname + (searchParams?.toString() ? `?${searchParams}` : '');
-    // gtag が読み込まれる前に呼ばれても安全にスキップ
-    // @ts-ignore
-    window.gtag?.('config', GA_ID, { page_path: url });
+    if (!GA_ID || typeof window === "undefined" || !(window as any).gtag) return;
+    const url = pathname + (searchParams?.toString() ? `?${searchParams}` : "");
+    (window as any).gtag("config", GA_ID, { page_path: url });
   }, [pathname, searchParams]);
 
-  // 計測 ID が無いときは何も出さない
+  // 外部リンク自動計測（同一ドメイン以外への <a> クリックを拾う）
+  useEffect(() => {
+    if (!GA_ID) return;
+
+    const onClick = (e: MouseEvent) => {
+      const target = e.target as Element | null;
+      const anchor = target?.closest?.("a");
+      if (!anchor) return;
+
+      const href = anchor.getAttribute("href") || "";
+      if (!href) return;
+
+      const isExternal =
+        /^https?:\/\//i.test(href) && !href.includes(location.hostname);
+
+      if (isExternal && (window as any).gtag) {
+        (window as any).gtag("event", "click_outbound", {
+          send_to: GA_ID,
+          link_url: href,
+          link_text: anchor.textContent?.trim()?.slice(0, 80) || undefined,
+          location_path: location.pathname,
+        });
+      }
+    };
+
+    document.addEventListener("click", onClick);
+    return () => document.removeEventListener("click", onClick);
+  }, []);
+
   if (!GA_ID) return null;
 
   return (
     <>
-      {/* gtag.js を読み込み */}
       <Script
-        id="ga-loader"
-        strategy="afterInteractive"
+        id="gtag-src"
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+        strategy="afterInteractive"
       />
-      {/* 初期設定。自動 page_view はオフにして、上の useEffect で送る */}
-      <Script id="ga-config" strategy="afterInteractive">
+      <Script id="gtag-init" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
-          window.gtag = gtag;
           gtag('js', new Date());
-          gtag('config', '${GA_ID}', { send_page_view: false });
+          gtag('config', '${GA_ID}', { anonymize_ip: true });
         `}
       </Script>
     </>
