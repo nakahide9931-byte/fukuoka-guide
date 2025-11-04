@@ -1,19 +1,22 @@
+import Image from "next/image";
 import Link from "next/link";
+
 export const dynamic = "force-static";
 
 export default function Page() {
   return (
     <main className="wrap">
       <section className="hero">
-        <img src="/hero.jpg" alt="Fukuoka night view" />
-        <div className="hero-inner">
-          <h1>Welcome to Fukuoka</h1>
-          <p>Discover food, culture, and nature in Kyushu’s vibrant heart.</p>
-          <div className="actions">
-            <Link href="/en/spots" className="btn primary">Explore Spots</Link>
-            <Link href="/en/favorites" className="btn ghost">Top Tours</Link>
-          </div>
-        </div>
+        <Image
+          src="/hero.jpg"
+          alt="Fukuoka night view"
+          width={1920}
+          height={1080}
+          sizes="(min-width: 1024px) 960px, 100vw"
+          priority
+          style={{ width: "100%", height: "auto" }}
+        />
+        {/* ...以下既存のコンテンツ... */}
       </section>
     </main>
   );
