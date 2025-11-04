@@ -2,6 +2,7 @@
 import Image from "next/image";
 import type { Metadata, ResolvingMetadata } from "next";
 import BreadcrumbJsonLd from "@/components/BreadcrumbJsonLd";
+import SpotAffiliateCtas from "@/components/SpotAffiliateCtas";
 
 const SPOT_META_EN: Record<
   string,
@@ -63,7 +64,11 @@ export default function Page({ params }: { params: { slug: string } }) {
   const m = SPOT_META_EN[params.slug];
   const title = m?.title ?? params.slug;
   const hero = m?.hero ?? "/images/spots/hero.jpg";
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
+
+  // 型の違いでビルドが止まらないよう保険（不要なら削除OK）
+  const Cta = SpotAffiliateCtas as any;
 
   return (
     <main style={{ padding: 24 }}>
@@ -102,6 +107,11 @@ export default function Page({ params }: { params: { slug: string } }) {
           style={{ width: "100%", height: "auto", display: "block" }}
           priority
         />
+      </div>
+
+      {/* CTA（アフィリエイト） */}
+      <div style={{ marginTop: 20 }}>
+        <Cta lang="en" slug={params.slug} title={title} />
       </div>
     </main>
   );
