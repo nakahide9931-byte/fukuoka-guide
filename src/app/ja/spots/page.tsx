@@ -1,31 +1,25 @@
-import type { Metadata } from "next";
+import Link from "next/link";
+import { SPOT_META_JA } from "./data";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
+export const dynamic = "force-static";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const title = "スポット一覧 | Fukuoka Guide";
-  const description = "食・文化・自然。九州の玄関口で見つける、あなたの旅。";
-  const path = "/ja/spots";
+export default function Page() {
+  const entries = Object.entries(SPOT_META_JA);
 
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: path,
-      languages: { ja: path, en: "/en/spots" },
-    },
-    openGraph: {
-      type: "website",
-      url: path,
-      title,
-      description,
-      images: [`${SITE}/hero.jpg`],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [`${SITE}/hero.jpg`],
-    },
-  };
+  return (
+    <main style={{ padding: 24 }}>
+      <h1 style={{ fontSize: "2rem", fontWeight: 700, marginBottom: 16 }}>
+        スポット
+      </h1>
+      <ul>
+        {entries.map(([slug, meta]) => (
+          <li key={slug} style={{ marginBottom: 8 }}>
+            <Link href={`/ja/spots/${slug}`}>
+              {(meta as any).title}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </main>
+  );
 }

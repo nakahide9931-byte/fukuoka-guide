@@ -1,32 +1,25 @@
-// 既存の import はそのまま残す
-import type { Metadata } from "next";
+import Link from "next/link";
+import { SPOT_META_EN } from "./data";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
+export const dynamic = "force-static";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const title = "Spots | Fukuoka Guide";
-  const description = "Discover food, culture, and nature in Kyushu's vibrant heart.";
-  const path = "/en/spots";
+export default function Page() {
+  const entries = Object.entries(SPOT_META_EN);
 
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: path,
-      languages: { en: path, ja: "/ja/spots" },
-    },
-    openGraph: {
-      type: "website",
-      url: path,
-      title,
-      description,
-      images: [`${SITE}/hero.jpg`],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [`${SITE}/hero.jpg`],
-    },
-  };
+  return (
+    <main style={{ padding: 24 }}>
+      <h1 style={{ fontSize: "2rem", fontWeight: 700, marginBottom: 16 }}>
+        Spots
+      </h1>
+      <ul>
+        {entries.map(([slug, meta]) => (
+          <li key={slug} style={{ marginBottom: 8 }}>
+            <Link href={`/en/spots/${slug}`}>
+              {(meta as any).title}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </main>
+  );
 }
