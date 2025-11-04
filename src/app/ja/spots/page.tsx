@@ -1,57 +1,31 @@
-import Link from "next/link";
-import { spots } from "./data";
-import SafeImage from "../../../components/SafeImage";
+import type { Metadata } from "next";
 
-export const metadata = { title: "スポット一覧 | Fukuoka Guide" };
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
 
-export default function JaSpotsIndex() {
-  return (
-    <main style={{ display: "grid", gap: 24 }}>
-      <h1>スポット一覧</h1>
-      <ul
-        style={{
-          display: "grid",
-          gap: 16,
-          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-          padding: 0,
-          listStyle: "none"
-        }}
-      >
-        {(spots as any[]).map((s: any) => {
-          const title =
-            (s?.name?.ja as string) ??
-            (s?.name as string) ??
-            (s?.title as string) ??
-            s.slug;
-          const summary =
-            (s?.summary?.ja as string) ?? (s?.summary as string) ?? "";
-          return (
-            <li
-              key={s.slug}
-              style={{
-                border: "1px solid #eee",
-                borderRadius: 8,
-                overflow: "hidden"
-              }}
-            >
-              <Link
-                href={`/ja/spots/${s.slug}`}
-                style={{
-                  display: "block",
-                  textDecoration: "none",
-                  color: "inherit"
-                }}
-              >
-                <SafeImage src={s.image ?? ""} alt={title} width={800} height={533} />
-                <div style={{ padding: 12 }}>
-                  <h3 style={{ margin: "8px 0" }}>{title}</h3>
-                  {summary && <p style={{ margin: 0, color: "#555" }}>{summary}</p>}
-                </div>
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-    </main>
-  );
+export async function generateMetadata(): Promise<Metadata> {
+  const title = "スポット一覧 | Fukuoka Guide";
+  const description = "食・文化・自然。九州の玄関口で見つける、あなたの旅。";
+  const path = "/ja/spots";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: path,
+      languages: { ja: path, en: "/en/spots" },
+    },
+    openGraph: {
+      type: "website",
+      url: path,
+      title,
+      description,
+      images: [`${SITE}/hero.jpg`],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [`${SITE}/hero.jpg`],
+    },
+  };
 }

@@ -1,24 +1,48 @@
+// src/app/en/spots/layout.tsx
 import type { ReactNode } from "react";
-import SpotListJsonLd from "../../../components/SpotListJsonLd";
-import { spots } from "./data";
+import SpotListJsonLd from "@/components/SpotListJsonLd";
+import LanguageSwitch from "@/components/LanguageSwitch";
+import { SPOT_META_EN, type SpotMeta } from "./data";
 
 export default function SpotsLayout({ children }: { children: ReactNode }) {
-  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const items = (spots as any[]).map((s: any, i: number) => ({
-    position: i + 1,
-    name:
-      (s?.name?.en as string) ??
-      (s?.name as string) ??
-      (s?.title as string) ??
-      s.slug,
-    url: `${site}/en/spots/${s.slug}`,
-    image: s.image ? `${site}/images/spots/${s.image}` : `${site}/hero.jpg`
-  }));
+  const site =
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
+
+  // Record<string, SpotMeta> なので s は SpotMeta と推論される
+  const items = (Object.entries(SPOT_META_EN) as Array<[string, SpotMeta]>).map(
+    ([slug, s], i) => ({
+      position: i + 1,
+      name: s.title,
+      url: `${site}/en/spots/${slug}`,
+      image: s.image
+        ? `${site}/images/spots/${s.image}`
+        : `${site}/images/spots/hero.jpg`,
+    })
+  );
 
   return (
-    <>
-      <SpotListJsonLd items={items} />
-      {children}
-    </>
+    <html lang="en">
+      <body>
+        <SpotListJsonLd items={items} />
+
+        {/* style は LanguageSwitch ではなく div 側に持たせる */}
+        <div
+          style={{
+            position: "fixed",
+            right: 16,
+            top: 16,
+            padding: "6px 10px",
+            border: "1px solid #ddd",
+            borderRadius: 8,
+            background: "#fff",
+            zIndex: 50,
+          }}
+        >
+          <LanguageSwitch />
+        </div>
+
+        {children}
+      </body>
+    </html>
   );
 }

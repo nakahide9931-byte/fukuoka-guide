@@ -1,10 +1,7 @@
-// src/app/api/debug-spots/route.ts
-import { NextResponse } from 'next/server';
-import { spots } from '../../ja/spots/data';
-
-export const dynamic = 'force-dynamic';
+import { NextResponse } from "next/server";
+import { SPOT_META_EN } from "../../en/spots/[slug]/data";
+import { SPOT_META_JA } from "../../ja/spots/[slug]/data";
 
 export async function GET() {
-  const slugs = (spots as any[]).map((s) => String((s as any).slug));
-  return NextResponse.json({ count: slugs.length, slugs });
+  return NextResponse.json({ en: SPOT_META_EN, ja: SPOT_META_JA });
 }

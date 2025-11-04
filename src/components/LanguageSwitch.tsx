@@ -1,37 +1,32 @@
-// src/components/LanguageSwitch.tsx
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import type { CSSProperties } from 'react';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type { CSSProperties } from "react";
 
 type Props = {
   className?: string;
   style?: CSSProperties;
+  "data-testid"?: string;
 };
 
-export default function LanguageSwitch({ className, style }: Props) {
-  const pathname = usePathname() || '/';
-
-  // /ja/... or /en/... を判定
-  const parts = pathname.split('/').filter(Boolean);
-  const current = parts[0] === 'ja' ? 'ja' : 'en';
-  const other = current === 'ja' ? 'en' : 'ja';
-
-  // 先頭セグメントを入れ替え
-  parts[0] = other;
-  const target = '/' + parts.join('/');
+export default function LanguageSwitch({ className, style, ...rest }: Props) {
+  const pathname = usePathname() ?? "/";
+  const isJa = pathname.startsWith("/ja");
+  const to = isJa
+    ? pathname.replace(/^\/ja/, "/en")
+    : pathname.replace(/^\/en/, "/ja");
+  const label = isJa ? "English" : "日本語";
 
   return (
     <Link
-      href={target}
-      prefetch={false}
+      href={to}
       className={className}
       style={style}
       data-testid="lang-switch"
-      aria-label="Switch language"
+      {...rest}
     >
-      {other === 'ja' ? '日本語' : 'English'}
+      {label}
     </Link>
   );
 }

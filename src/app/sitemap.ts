@@ -1,25 +1,25 @@
-// src/app/sitemap.ts
 import type { MetadataRoute } from "next";
-import { spots as jaSpots } from "./ja/spots/data";
-import { spots as enSpots } from "./en/spots/data";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
+import { SPOT_META_EN } from "./en/spots/[slug]/data";
+import { SPOT_META_JA } from "./ja/spots/[slug]/data";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date().toISOString();
-
-  const urls: MetadataRoute.Sitemap = [
-    { url: `${SITE_URL}/`, lastModified: now },
-    { url: `${SITE_URL}/en`, lastModified: now },
-    { url: `${SITE_URL}/ja`, lastModified: now },
+  const pages = [
+    "/",
+    "/en",
+    "/ja",
+    "/en/favorites",
+    "/ja/favorites",
+    "/en/spots",
+    "/ja/spots",
   ];
 
-  for (const s of jaSpots as any[]) {
-    urls.push({ url: `${SITE_URL}/ja/spots/${s.slug}`, lastModified: now });
-  }
-  for (const s of enSpots as any[]) {
-    urls.push({ url: `${SITE_URL}/en/spots/${s.slug}`, lastModified: now });
-  }
+  const spotUrls = [
+    ...Object.keys(SPOT_META_EN).map((slug) => `/en/spots/${slug}`),
+    ...Object.keys(SPOT_META_JA).map((slug) => `/ja/spots/${slug}`),
+  ];
 
-  return urls;
+  return [...pages, ...spotUrls].map((url) => ({
+    url,
+    lastModified: new Date(),
+  }));
 }
