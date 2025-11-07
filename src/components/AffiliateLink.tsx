@@ -1,43 +1,21 @@
-// 例: src/components/AffiliateLink.tsx（抜粋）
-import { gaEvent } from '@/lib/ga';
+import Link, { LinkProps } from 'next/link';
+import { PropsWithChildren } from 'react';
 
-export default function AffiliateLink({
-  href,
-  children,
-  target,
-  rel,
-  onClick,
-  ...rest
-}: React.ComponentProps<'a'> & { href: string }) {
-  const handleClick: React.MouseEventHandler<HTMLAnchorElement> = (e) => {
-    try {
-      const url = new URL(href, window.location.href);
-      const isOutbound = url.host !== window.location.host;
+type Props = PropsWithChildren<LinkProps> & React.HTMLAttributes<HTMLAnchorElement>;
 
-      gaEvent(isOutbound ? 'outbound_click' : 'cta_click', {
-        link_url: url.toString(),
-        link_domain: url.hostname,
-        link_text:
-          typeof children === 'string'
-            ? children
-            : (e.currentTarget.textContent || '').slice(0, 80),
-        language: document.documentElement.lang,
-      });
-    } catch {
-      // no-op
-    }
-    onClick?.(e);
-  };
-
+export default function AffiliateLink({ children, ...rest }: Props) {
   return (
-    <a
-      href={href}
-      target={target ?? '_blank'}
-      rel={rel ?? 'nofollow sponsored noopener noreferrer'}
-      onClick={handleClick}
+    <Link
       {...rest}
+      target="_blank"
+      rel="nofollow sponsored noopener"
+      style={{
+        display: 'inline-block',
+        textDecoration: 'underline',
+        fontWeight: 500,
+      }}
     >
       {children}
-    </a>
+    </Link>
   );
 }
