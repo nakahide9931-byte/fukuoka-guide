@@ -1,21 +1,18 @@
 // src/lib/ga.ts
+export const GA_ID = process.env.NEXT_PUBLIC_GA_ID || '';
 
-type GAParams = Record<string, unknown>;
-type Lang = 'en' | 'ja';
-
-/** 汎用 GA4 イベント送信（SSRやgtag未ロードでも安全に無視） */
-export function gaEvent(action: string, params: GAParams = {}): void {
+export function gaEvent(name: string, params: Record<string, any> = {}) {
+  if (!GA_ID) return;
   if (typeof window === 'undefined') return;
-  const gtag = (window as any).gtag as ((...a: any[]) => void) | undefined;
-  if (!gtag) return;
-  gtag('event', action, params);
+  const w = window as any;
+  if (typeof w.gtag !== 'function') return;
+  w.gtag('event', name, params);
 }
 
-/** アフィリエイトCTA専用のヘルパー */
-export function click_affiliate(params: {
-  label: string;   // 例: "hotel:dazaifu-tenmangu" / "tour:nakasu-night"
-  lang: Lang;      // 'en' | 'ja'
-  value?: number;  // 任意
-}): void {
-  gaEvent('click_affiliate', params);
+export function trackAffiliateClick(
+  partner: 'booking' | 'klook',
+  meta: { slug?: string; language?: 'ja' | 'en'; page_path?: string } = {}
+) {
+  gaEvent('affiliate_click', { partner, ...meta, value: 1 });
 }
+export const click_affiliate = trackAffiliateClick; // 後方互換
