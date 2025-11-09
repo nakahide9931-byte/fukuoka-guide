@@ -1,13 +1,13 @@
 // src/app/en/spots/[slug]/page.tsx
+// スクショの構成に合わせて JSON-LD を自動挿入する版
+
 import Image from "next/image";
 import type { Metadata, ResolvingMetadata } from "next";
 import BreadcrumbJsonLd from "@/components/BreadcrumbJsonLd";
 import SpotAffiliateCtas from "@/components/SpotAffiliateCtas";
+import SpotAutoJsonLd from "@/components/SpotAutoJsonLd";
 
-const SPOT_META_EN: Record<
-  string,
-  { title: string; description: string; hero?: string }
-> = {
+const SPOT_META_EN: Record<string, { title: string; description: string; hero?: string }> = {
   "dazaifu-tenmangu": {
     title: "Dazaifu Tenmangu Shrine",
     description: "Famous for plum blossoms.",
@@ -30,8 +30,7 @@ export async function generateMetadata(
   _parent: ResolvingMetadata
 ): Promise<Metadata> {
   const baseTitle = "Fukuoka Guide (English)";
-  const fallbackDescription =
-    "Discover food, culture, and nature in Kyushu's vibrant heart.";
+  const fallbackDescription = "Discover food, culture, and nature in Kyushu's vibrant heart.";
   const found = SPOT_META_EN[params.slug];
   const title = found ? `${found.title} | ${baseTitle}` : baseTitle;
   const description = found?.description ?? fallbackDescription;
@@ -64,15 +63,12 @@ export default function Page({ params }: { params: { slug: string } }) {
   const m = SPOT_META_EN[params.slug];
   const title = m?.title ?? params.slug;
   const hero = m?.hero ?? "/images/spots/hero.jpg";
-  const base =
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
-
-  // 型の違いでビルドが止まらないよう保険（不要なら削除OK）
+  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
   const Cta = SpotAffiliateCtas as any;
 
   return (
     <main style={{ padding: 24 }}>
-      {/* パンくず JSON-LD */}
+      {/* Breadcrumb JSON-LD */}
       <BreadcrumbJsonLd
         items={[
           { name: "Fukuoka Guide", url: `${base}/en` },
@@ -81,13 +77,7 @@ export default function Page({ params }: { params: { slug: string } }) {
         ]}
       />
 
-      <h1
-        style={{
-          fontSize: "2.25rem",
-          fontWeight: 700,
-          marginBottom: 16,
-        }}
-      >
+      <h1 style={{ fontSize: "2.25rem", fontWeight: 700, marginBottom: 16 }}>
         {title}
       </h1>
 
@@ -109,10 +99,13 @@ export default function Page({ params }: { params: { slug: string } }) {
         />
       </div>
 
-      {/* CTA（アフィリエイト） */}
+      {/* CTA（Affiliate） */}
       <div style={{ marginTop: 20 }}>
         <Cta lang="en" slug={params.slug} title={title} />
       </div>
+
+      {/* ▼ 3-3：TouristAttraction の JSON-LD を自動出力 */}
+      <SpotAutoJsonLd nameOverride={title} image={hero} description={m?.description} />
     </main>
   );
 }
