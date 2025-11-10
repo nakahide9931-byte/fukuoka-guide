@@ -1,20 +1,41 @@
 // src/lib/ga.ts
-export const GA_ID = process.env.NEXT_PUBLIC_GA_ID || '';
+export const GA_ID: string = process.env.NEXT_PUBLIC_GA_ID || '';
 
-export function gaEvent(name: string, params: Record<string, any> = {}) {
-  if (!GA_ID) return;
-  if (typeof window === 'undefined') return;
-  const w = window as any;
-  if (typeof w.gtag !== 'function') return;
-  w.gtag('event', name, params);
+type Lang = 'ja' | 'en';
+type Provider = 'booking' | 'klook';
+
+export type AffiliateClickPayload = {
+  slug: string;             // 例: "nakasu-night"
+  language: Lang;           // 'ja' | 'en'
+  page_path: string;        // 例: "/en/spots/nakasu-night"
+};
+
+type Gtag = (...args: unknown[]) => void;
+
+declare global {
+  interface Window {
+    gtag?: Gtag;
+    dataLayer?: unknown[];
+  }
 }
 
+/** pageview を GA4 に送信 */
+export function pageview(url: string): void {
+  if (!GA_ID || typeof window === 'undefined' || typeof window.gtag !== 'function') return;
+  window.gtag('config', GA_ID, { page_path: url });
+}
+
+/** アフィリエイトクリック計測（イベント送信） */
 export function trackAffiliateClick(
-  partner: 'booking' | 'klook',
-  meta: { slug?: string; language?: 'ja' | 'en'; page_path?: string } = {}
-) {
-  gaEvent('affiliate_click', { partner, ...meta, value: 1 });
-}
+  provider: Provider,
+  payload: AffiliateClickPayload
+): void {
+  if (!GA_ID || typeof window === 'undefined' || typeof window.gtag !== 'function') return;
 
-/** 互換用（古い呼び出し名が残っていてもOK） */
-export const click_affiliate = trackAffiliateClick;
+  window.gtag('event', 'affiliate_click', {
+    event_category: 'affiliate',
+    event_label: `${provider}:${payload.slug}`,
+    provider,
+    ...payload,
+  });
+}
