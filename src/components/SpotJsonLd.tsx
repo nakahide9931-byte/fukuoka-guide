@@ -1,16 +1,35 @@
 // src/components/SpotJsonLd.tsx
-'use client'
-type Props = { name: string; description: string; url: string; images: string[]; area: string }
+import React from "react";
 
-export default function SpotJsonLd({ name, description, url, images, area }: Props) {
+type Props = {
+  name: string;
+  description?: string;
+  image: string; // 絶対URL
+  url: string;   // ページの絶対URL
+  sameAs?: string[];
+};
+
+export default function SpotJsonLd({
+  name,
+  description,
+  image,
+  url,
+  sameAs = [],
+}: Props) {
   const json = {
-    '@context': 'https://schema.org',
-    '@type': 'TouristAttraction',
+    "@context": "https://schema.org",
+    "@type": "TouristAttraction",
     name,
-    description,
+    ...(description ? { description } : {}),
+    image: [image],
     url,
-    image: images,
-    areaServed: area,
-  }
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }} />
+    ...(sameAs.length ? { sameAs } : {}),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }}
+    />
+  );
 }

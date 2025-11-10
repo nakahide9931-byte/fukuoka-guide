@@ -15,4 +15,6 @@ export function trackAffiliateClick(
 ) {
   gaEvent('affiliate_click', { partner, ...meta, value: 1 });
 }
-export const click_affiliate = trackAffiliateClick; // 後方互換
+
+/** 互換用（古い呼び出し名が残っていてもOK） */
+export const click_affiliate = trackAffiliateClick;

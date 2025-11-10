@@ -1,23 +1,3 @@
-import LanguageSwitch from '../../components/LanguageSwitch'; // or '@/components/LanguageSwitch'
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        <LanguageSwitch
-          style={{
-            position: 'fixed',
-            right: 16,
-            top: 16,
-            padding: '6px 10px',
-            border: '1px solid #ddd',
-            borderRadius: 8,
-            background: '#fff',
-            zIndex: 50,
-          }}
-        />
-        {children}
-      </body>
-    </html>
-  );
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }

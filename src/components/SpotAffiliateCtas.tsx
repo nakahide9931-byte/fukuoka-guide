@@ -22,11 +22,11 @@ export default function SpotAffiliateCtas(props: Props) {
     <div className={props.className} style={{ display:'grid', gap:12 }}>
       <a href={hotelUrl} target="_blank" rel="nofollow sponsored noopener"
          onClick={() => trackAffiliateClick('booking', { slug: props.slug, language: lang, page_path: pathname })}>
-        {lang === 'ja' ? '周辺のホテル' : 'Nearby Hotels'}
+        {lang === 'ja' ? '周辺のホテル（Booking）' : 'Find Hotels (Booking)'}
       </a>
       <a href={tourUrl} target="_blank" rel="nofollow sponsored noopener"
          onClick={() => trackAffiliateClick('klook', { slug: props.slug, language: lang, page_path: pathname })}>
-        {lang === 'ja' ? '周辺のツアー' : 'Nearby Tours'}
+        {lang === 'ja' ? '周辺のツアー（Klook）' : 'Find Activities (Klook)'}
       </a>
     </div>
   );

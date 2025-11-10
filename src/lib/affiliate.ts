@@ -2,6 +2,7 @@
 export type Lang = 'ja' | 'en';
 export type Partner = 'klook' | 'booking';
 
+/** Awin承認前: staging / 承認後: prod */
 const MODE = (process.env.NEXT_PUBLIC_LINK_MODE ?? 'staging').toLowerCase() as 'staging' | 'prod';
 const env = (k: string, d = ''): string => (process.env as any)[k] || d;
 
@@ -31,9 +32,14 @@ function addParam(base: string, k: string, v: string) {
   catch { const sep = base.includes('?') ? '&' : '?'; return `${base}${sep}${encodeURIComponent(k)}=${encodeURIComponent(v)}`; }
 }
 
+/** 言語・パートナー・検索語から最終遷移URLを生成 */
 export function affiliateHref(partner: Partner, lang: Lang, query: string): string {
   const base = baseOf(partner, lang);
   if (partner === 'klook') return addParam(base, 'keyword', query);
   const langCode = lang === 'ja' ? 'ja' : 'en-us';
   return addParam(addParam(base, 'ss', query), 'lang', langCode);
 }
+
+// ショートハンド（必要に応じて）
+export const tourHref  = (lang: Lang, q: string) => affiliateHref('klook',   lang, q);
+export const hotelHref = (lang: Lang, q: string) => affiliateHref('booking', lang, q);
