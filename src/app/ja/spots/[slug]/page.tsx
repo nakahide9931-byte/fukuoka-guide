@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { Metadata, ResolvingMetadata } from "next";
 import BreadcrumbJsonLd from "@/components/BreadcrumbJsonLd";
 import SpotAffiliateCtas from "@/components/SpotAffiliateCtas";
+import SpotJsonLd from "@/components/SpotJsonLd";
 
 const SPOT_META_JA: Record<
   string,
@@ -10,7 +11,7 @@ const SPOT_META_JA: Record<
 > = {
   "dazaifu-tenmangu": {
     title: "太宰府天満宮",
-    description: "梅と学問の神様。写真映えスポット多数。",
+    description: "梅や学問の神様。写真映えスポット多数。",
     hero: "/images/spots/dazaifu-tenmangu.jpg",
   },
   "nakasu-night": {
@@ -27,35 +28,33 @@ const SPOT_META_JA: Record<
 
 export async function generateMetadata(
   { params }: { params: { slug: string } },
-  _parent: ResolvingMetadata
+  _parent?: ResolvingMetadata
 ): Promise<Metadata> {
   const baseTitle = "Fukuoka Guide（日本語）";
-  const fallbackDescription =
-    "食・文化・自然。九州の玄関口で見つける、あなたの旅。";
+  const fallbackDescription = "食・文化・自然。九州の玄関口で見つかる、あなたの旅。";
   const found = SPOT_META_JA[params.slug];
   const title = found ? `${found.title} | ${baseTitle}` : baseTitle;
   const description = found?.description ?? fallbackDescription;
-  const slug = params.slug;
 
   return {
     title,
     description,
     alternates: {
-      canonical: `/ja/spots/${slug}`,
-      languages: { ja: `/ja/spots/${slug}`, en: `/en/spots/${slug}` },
+      canonical: `/ja/spots/${params.slug}`,
+      languages: { ja: `/ja/spots/${params.slug}`, en: `/en/spots/${params.slug}` },
     },
     openGraph: {
       type: "article",
-      url: `/ja/spots/${slug}`,
+      url: `/ja/spots/${params.slug}`,
       title,
       description,
-      images: [`/ja/spots/${slug}/opengraph-image`],
+      images: [`/ja/spots/${params.slug}/opengraph-image`],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [`/ja/spots/${slug}/twitter-image`],
+      images: [`/ja/spots/${params.slug}/twitter-image`],
     },
   };
 }
@@ -66,7 +65,6 @@ export default function Page({ params }: { params: { slug: string } }) {
   const hero = m?.hero ?? "/images/spots/hero.jpg";
   const base =
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
-
   const Cta = SpotAffiliateCtas as any;
 
   return (
@@ -112,6 +110,14 @@ export default function Page({ params }: { params: { slug: string } }) {
       <div style={{ marginTop: 20 }}>
         <Cta lang="ja" slug={params.slug} title={title} />
       </div>
+
+      {/* JSON-LD: TouristAttraction */}
+      <SpotJsonLd
+        name={title}
+        description={m?.description}
+        image={new URL(hero, base).toString()}
+        url={`${base}/ja/spots/${params.slug}`}
+      />
     </main>
   );
 }

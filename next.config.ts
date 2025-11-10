@@ -1,18 +1,15 @@
 // next.config.ts
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      // 例: 外部画像ドメインを許可したい場合はここに追加
-      // { protocol: "https", hostname: "images.unsplash.com" },
-      // { protocol: "https", hostname: "example.com" },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'upload.wikimedia.org' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
+      // ↑必要に応じて画像 CDN を追加
     ],
-  },
-
-  // ✅ Vercel の本番ビルド中に ESLint エラーで止めない
-  eslint: {
-    ignoreDuringBuilds: true,
   },
 };
 
