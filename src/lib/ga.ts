@@ -1,41 +1,37 @@
 // src/lib/ga.ts
-export const GA_ID: string = process.env.NEXT_PUBLIC_GA_ID || '';
+export const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? '';
 
-type Lang = 'ja' | 'en';
-type Provider = 'booking' | 'klook';
-
-export type AffiliateClickPayload = {
-  slug: string;             // 例: "nakasu-night"
-  language: Lang;           // 'ja' | 'en'
-  page_path: string;        // 例: "/en/spots/nakasu-night"
-};
-
-type Gtag = (...args: unknown[]) => void;
-
+/** gtag が window にあるかもしれないので型だけ用意 */
 declare global {
   interface Window {
-    gtag?: Gtag;
-    dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
-/** pageview を GA4 に送信 */
+/** ページビュー送信（GA4） */
 export function pageview(url: string): void {
-  if (!GA_ID || typeof window === 'undefined' || typeof window.gtag !== 'function') return;
-  window.gtag('config', GA_ID, { page_path: url });
+  if (!GA_ID) return; // GA未設定なら何もしない
+  window.gtag?.('config', GA_ID, { page_path: url });
 }
 
-/** アフィリエイトクリック計測（イベント送信） */
+/** 汎用イベント送信（Favorite などで使う） */
+type EventParams = Record<string, string | number | boolean | undefined>;
+
+export function gaEvent(action: string, params: EventParams = {}): void {
+  if (!GA_ID) return;
+  window.gtag?.('event', action, params);
+}
+
+/** アフィリエイト用の補助（CTAで使う） */
+export type AffiliateClickPayload = {
+  slug: string;
+  language: 'ja' | 'en';
+  page_path: string;
+};
+
 export function trackAffiliateClick(
-  provider: Provider,
+  provider: 'booking' | 'klook',
   payload: AffiliateClickPayload
 ): void {
-  if (!GA_ID || typeof window === 'undefined' || typeof window.gtag !== 'function') return;
-
-  window.gtag('event', 'affiliate_click', {
-    event_category: 'affiliate',
-    event_label: `${provider}:${payload.slug}`,
-    provider,
-    ...payload,
-  });
+  gaEvent('affiliate_click', { provider, ...payload });
 }
