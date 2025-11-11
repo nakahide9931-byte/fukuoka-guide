@@ -1,40 +1,20 @@
-// src/app/ja/favorites/layout.tsx
-import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
+'use client';
 
-const site = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+import React, { Suspense } from 'react';
+import GA from '@/components/GA'; // ルートで入れているなら無くてもOK
 
-export async function generateMetadata(): Promise<Metadata> {
-  const url = `${site}/ja/favorites`;
-  const title = 'お気に入り – Find Your Fukuoka';
-  const description = '保存した福岡のスポット一覧。';
-  const image = `${site}/hero.jpg`;
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      {/* GA が useSearchParams を使うならラップしておく */}
+      <Suspense fallback={null}>
+        <GA />
+      </Suspense>
 
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: url,
-      languages: { ja: url, en: `${site}/en/favorites`, 'x-default': url },
-    },
-    robots: { index: false, follow: true },
-    openGraph: {
-      type: 'website',
-      url,
-      siteName: 'Find Your Fukuoka',
-      title,
-      description,
-      images: [{ url: image }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: [image],
-    },
-  };
-}
-
-export default function FavoritesLayout({ children }: { children: ReactNode }) {
-  return <>{children}</>;
+      {/* /favorites 配下のページ全体をラップ */}
+      <Suspense fallback={null}>
+        {children}
+      </Suspense>
+    </>
+  );
 }
