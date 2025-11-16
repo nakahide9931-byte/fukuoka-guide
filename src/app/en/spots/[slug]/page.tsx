@@ -1,58 +1,67 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// SSGを強制（EdgeでもこのページはNodeで動かす）
-export const runtime = 'nodejs';
+// src/app/en/spots/[slug]/page.tsx
+export const runtime = 'nodejs';           // SSGを有効に保つ
 export const dynamic = 'error';
 export const dynamicParams = false;
 
 import { notFound } from 'next/navigation';
-import * as DATA from '../data'; // ★ default が無くてもOKにする
+import * as DATA from '../data';           // named/default どちらでも受け取れるように
 
-// 必要最小限の型
+// --- 型（no-explicit-any を避けるため unknown ベースで実装）---
 type SpotMeta = { slug: string; title?: string; name?: string };
 
-// unknown から安全に取り出す型ガード
-function toMeta(x: any): SpotMeta | null {
-  if (!x || typeof x !== 'object') return null;
-  const o = x as Record<string, unknown>;
-  const slug = typeof o.slug === 'string' ? o.slug.trim() : '';
+function asRecord(v: unknown): Record<string, unknown> | null {
+  return v !== null && typeof v === 'object' ? (v as Record<string, unknown>) : null;
+}
+
+// 値そのものが slug を持たない場合は key(= オブジェクトのキー)を slug に補完
+function toMeta(x: unknown, key?: string): SpotMeta | null {
+  const o = asRecord(x);
+  if (!o) return null;
+
+  const rawSlug = typeof o.slug === 'string' ? o.slug.trim() : '';
+  const slug = rawSlug || (key ? key.trim() : '');
   if (!slug) return null;
+
   const title = typeof o.title === 'string' ? o.title : undefined;
-  const name = typeof o.name === 'string' ? o.name : undefined;
+  const name  = typeof o.name  === 'string' ? o.name  : undefined;
   return { slug, title, name };
 }
 
-// default / named / record どれでも配列に正規化
-function normalizeToArray(v: any): any[] {
-  if (Array.isArray(v)) return v;
-  if (v && typeof v === 'object') {
-    if (Array.isArray(v.default)) return v.default;  // default export が配列
-    if (Array.isArray(v.spots)) return v.spots;      // named export: spots
-    return Object.values(v);                         // record 形式
+// モジュールから “spots” 配列/レコード を確実に取り出し → SpotMeta[]
+function extractList(mod: unknown): SpotMeta[] {
+  const m = asRecord(mod);
+  const root: unknown = m?.default ?? (m?.spots ?? mod);
+
+  if (Array.isArray(root)) {
+    return (root.map((v) => toMeta(v)).filter(Boolean) as SpotMeta[]);
+  }
+  const rec = asRecord(root);
+  if (rec) {
+    return (Object.entries(rec)
+      .map(([k, v]) => toMeta(v, k))
+      .filter(Boolean) as SpotMeta[]);
   }
   return [];
 }
 
-// 最終的な配列に確定
-const SPOTS: SpotMeta[] = normalizeToArray(DATA)
-  .map(toMeta)
-  .filter(Boolean) as SpotMeta[];
+const SPOTS: SpotMeta[] = extractList(DATA);
 
-// SSG する slug 一覧
+// --- ここが SSG で使われます ---
 export async function generateStaticParams() {
-  return SPOTS.map((s) => ({ slug: s.slug }));
+  const slugs = SPOTS.map((s) => s.slug);
+  console.log('[build][en][slug]', slugs); // ← Vercel の Build Logs で確認できます
+  return slugs.map((slug) => ({ slug }));
 }
 
-// 詳細ページ本体（既存の描画に差し替えOK）
+// --- 詳細ページ本体（既存の描画に差し替えてOK）---
 export default function Page({ params }: { params: { slug: string } }) {
   const s = SPOTS.find((x) => x.slug === params.slug);
   if (!s) return notFound();
-
   const heading = s.title ?? s.name ?? params.slug;
 
   return (
     <main>
-      {/* ここを既存のJSXに置き換えてOK（最低限のレンダラを置いています） */}
+      {/* ここにあなたの元の JSX を戻してOK */}
       <h1>{heading}</h1>
       <p>slug: {params.slug}</p>
     </main>
