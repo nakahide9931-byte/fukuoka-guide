@@ -1,49 +1,36 @@
-import Link from "next/link";
-import type { Metadata } from "next";
-import { SPOT_META_EN, type SpotMeta } from "./[slug]/data";
+// === src/app/en/spots/page.tsx ===
+export const runtime = 'nodejs';
+export const dynamic = 'error';
 
-export const dynamic = "force-static";
+import Link from 'next/link';
+import { spots } from './data';
 
-const site = process.env.NEXT_PUBLIC_SITE_URL ?? "https://fukuoka-guide.vercel.app";
+type SpotMeta = { slug: string; title?: string; name?: string };
 
-export async function generateMetadata(): Promise<Metadata> {
-  const title = "Spots | Fukuoka Guide";
-  const description = "Explore popular spots in Fukuoka.";
-  const url = `${site}/en/spots`;
-  const ogImage = `${site}/images/spots/hero.jpg`;
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: "/en/spots",
-      languages: { en: "/en/spots", ja: "/ja/spots" },
-    },
-    openGraph: {
-      type: "website",
-      url,
-      title,
-      description,
-      images: [ogImage],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [ogImage],
-    },
-  };
+function toMeta(x: unknown): SpotMeta | null {
+  if (typeof x !== 'object' || x === null) return null;
+  const o = x as Record<string, unknown>;
+  const slug = typeof o.slug === 'string' ? o.slug.trim() : '';
+  if (!slug) return null;
+  const title = typeof o.title === 'string' ? o.title : undefined;
+  const name  = typeof o.name  === 'string' ? o.name  : undefined;
+  return { slug, title, name };
 }
+function toArray(v: unknown): unknown[] {
+  if (Array.isArray(v)) return v;
+  if (v && typeof v === 'object') return Object.values(v as Record<string, unknown>);
+  return [];
+}
+const LIST: SpotMeta[] = toArray(spots).map(toMeta).filter(Boolean) as SpotMeta[];
 
 export default function Page() {
-  const entries = Object.entries(SPOT_META_EN) as [string, SpotMeta][];
   return (
-    <main style={{ padding: 24 }}>
-      <h1 style={{ fontSize: "2rem", fontWeight: 700, marginBottom: 16 }}>Spots</h1>
+    <main>
+      <h1>Spots</h1>
       <ul>
-        {entries.map(([slug, meta]) => (
-          <li key={slug} style={{ marginBottom: 8 }}>
-            <Link href={`/en/spots/${slug}`}>{meta.title}</Link>
+        {LIST.map(s => (
+          <li key={s.slug}>
+            <Link href={`/en/spots/${s.slug}`}>{s.title ?? s.name ?? s.slug}</Link>
           </li>
         ))}
       </ul>
